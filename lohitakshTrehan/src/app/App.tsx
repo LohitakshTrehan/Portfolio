@@ -2,66 +2,45 @@
 import React from 'react';
 
 // Components
-import { StatefulInput } from 'baseui/input';
-import { Block } from 'baseui/block';
+import { Provider as StyletronProvider } from 'styletron-react';
+import { BaseProvider, useStyletron } from 'baseui';
 
 // Hooks
-import { useStyletron } from 'baseui';
+import { useThemeManager } from './hooks/useThemeManager';
 
 // Utils
-import { Client as Styletron } from 'styletron-engine-atomic';
-import { Provider as StyletronProvider } from 'styletron-react';
-import { LightTheme, BaseProvider, styled, DarkTheme } from 'baseui';
+import { Client as StyletronClientEngine } from 'styletron-engine-atomic';
 
-const engine = new Styletron();
+const engine = new StyletronClientEngine();
 
-const Centered = styled('div', {
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	height: '100%',
-});
-
-const Ss = () => {
+// eslint-disable-next-line react/prop-types
+// FIXME
+const Example = ({ toggleTheme, appTheme }) => {
 	const [css, theme] = useStyletron();
 	return (
-		// <Block
-		// 	overrides={{
-		// 		Block: {
-		// 			props: {
-		// 				className: css({ color: 'red' }),
-		// 			},
-		// 		},
-		// 	}}
-		// 	// className={css({ color: 'red' })}
-		// >
-		// 	Red Button
-		// </Block>
-		<Block className="">text</Block>
+		<>
+			<div
+				className={css({
+					backgroundColor: theme.colors.backgroundPrimary,
+					color: theme.colors.backgroundInversePrimary,
+				})}
+			>
+				Check Theme of this DIV
+			</div>
+			<div onClick={toggleTheme}>Click to change theme</div>
+			<div>{`Current Theme is ${appTheme}`}</div>
+		</>
 	);
 };
 
 export const App = (): JSX.Element => {
-	const [css, theme] = useStyletron();
+	const { appTheme, baseUITheme, toggleTheme } = useThemeManager();
 	return (
 		<StyletronProvider value={engine}>
-			<BaseProvider theme={DarkTheme}>
-				<Centered>
-					{/* <Block
-						overrides={{
-							Block: {
-								style: ({ $theme }) => ({
-									backgroundColor: $theme.colors.borderSelected,
-								}),
-							},
-						}}
-						as={'div'}
-						marginTop={'4px'}
-					>
-						yellow
-					</Block> */}
-					<Ss />
-				</Centered>
+			<BaseProvider theme={baseUITheme}>
+				{/* To Apply base UI Theme, dont access the theme variable directly here,
+				instead create a separate component */}
+				<Example appTheme={appTheme} toggleTheme={toggleTheme} />
 			</BaseProvider>
 		</StyletronProvider>
 	);
